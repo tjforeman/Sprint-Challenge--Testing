@@ -34,3 +34,49 @@ describe('Post /games' , () =>{
       })
       
 })
+
+describe('Get /Games', ()=>{
+    it('should return status 200 if working',() => {
+        return request(server).get('/games').expect(200)
+    })
+
+    it('should return an empty array', async () =>{
+        const res = await db('games');
+
+        expect(res).toHaveLength(0);
+
+    })
+
+    it('should use json ', async () =>{
+       const res= await request(server).get('/games')
+
+        expect(res.type).toBe('application/json');
+    })
+
+    it('should return an array' ,async () =>{
+        const res= await request(server).get('/games')
+
+        expect(Array.isArray(res.body)).toBe(true)
+    })
+
+})
+
+describe('Delete /games/:id', () =>{
+    afterEach(async () => {
+        await db('games').truncate();
+      });
+
+      it('should return a 200 status if the game is deleted', async () =>{
+        await db('games').insert({Title:'Fortnite', Genre:'action'});
+
+        const res = await request(server).delete('/games/1');
+
+        expect(res.status).toBe(200)
+      })
+
+      it('returns a 404 status if the game doesnt exist', async () => {
+        const res = await request(server).delete('/games/12');
+
+        expect(res.status).toBe(404);
+    })
+})
